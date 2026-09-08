@@ -1,70 +1,159 @@
-# SIH-26153
-AI based Network Attack Forecasting from Network Traffic Data
-# Challenge Specification: Predictive Cyber Defense using AI World Models
+# SIH-26153: AI-based Network Attack Forecasting
 
-This challenge seeks software prototypes that leverage "World Models" to learn network behavior, anticipate attacker progression, and support proactive cyber defense. 
+> **Predictive Cyber Defence using AI World Models**
+> Smart India Hackathon 2026 | Challenge ID: SIH-26153
 
-## The Core Objective
-Move beyond static intrusion classification (binary benign/malicious labels) and build an AI that learns the internal causal simulation of network states over time. An infiltration is a process unfolding over time, not a single anomalous packet.
+## Overview
 
-**High-Level Goals:**
-* **Represent** network state using feature vectors or graphs.
-* **Learn** state-transition dynamics via sequence models (LSTM, Transformer), Graph Neural Networks, or latent state models.
-* **Forecast** future network states and the probability of attacker progression.
-* **Map** predicted behavior to recognized frameworks (e.g., MITRE ATT&CK).
-* **Explain** predictions using attention mechanisms or feature attribution.
+This system uses **World Models** to learn network state-transition dynamics and predict attacker progression through MITRE ATT&CK stages — moving beyond binary detection to *predictive* cyber defense.
 
----
+### Key Innovation
 
-## 1. Input Data Requirements
+Instead of asking "is this an attack?", we ask **"what happens next?"** — forecasting the attacker's trajectory through stages: Reconnaissance → Initial Access → Lateral Movement → C2 → Exfiltration.
 
-Teams must fuse two levels of traffic features drawn from open-source datasets (e.g., CIC-IDS-2018 or CTU-13) to capture both aggregate and micro-level behaviors.
+For complete documentation of every file, module, and design decision, see **[`DOCUMENTATION.md`](DOCUMENTATION.md)**.
 
-| Data Level | Format Source | Extracted Features | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Flow-Level** | NetFlow / IPFIX | IP/port pairs, TCP flags (SYN, ACK, etc.), protocol, bytes/packets per flow, duration, IAT statistics. | Captures aggregate behavior (e.g., a SYN flood or data exfiltration). |
-| **Packet-Level** | PCAP-derived | TTL variance, TCP window size, IP fragment flags, payload sizes, port scan signatures, retransmissions. | Exposes timing and sequencing designed to evade basic flow-based thresholds. |
+## Quick Start
 
----
+### 1. Setup
 
-## 2. World Model Architecture
+```bash
+# Clone the repository
+git clone https://github.com/PhaNtoM-GHosT-11101/SIH-26153.git
+cd SIH-26153
 
-The core deliverable is a learned model of network state transition dynamics, not a static input-output classifier. 
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
 
-* **State Representation:** Encode active flows at time $t$ into a structured feature vector or graph.
-* **Transition Dynamics:** Learn the probability distribution over the next state given the current state: $P(S_{t+1} | S_t)$.
-* **Model Selection:** Utilize time-windowed sequence models such as LSTMs, Temporal Transformers, or Graph Neural Networks (GNNs).
-* **Training:** Use supervised dynamics learning on labeled open-source datasets, deriving ground-truth transitions from attack timelines. The model must generalize to unseen attack patterns.
+# Install dependencies
+pip install -r requirements.txt
+```
 
----
+### 2. Get the Dataset
 
-## 3. Forward Simulation & Outputs
+Download **CIC-IDS-2018** from the [Canadian Institute for Cybersecurity](https://www.unb.ca/cic/datasets/ids-2018.html). Place the CSV file in `data/raw/`.
 
-Given a current traffic snapshot, the prediction engine must roll out $K$ steps ahead and output:
+**Alternative for quick testing** — generate the synthetic CIC-IDS-compatible dataset (temporally-structured multi-stage attack campaigns):
 
-* **Time-Series Probability Score:** The likelihood of infiltration occurring in the next $K$ time windows.
-* **Predicted Attack Stage:** A direct mapping of the trajectory to MITRE ATT&CK phases (Reconnaissance, Initial Access, Lateral Movement, Command & Control, or Exfiltration).
-* **Driving Features:** Interpretability tools (e.g., SHAP values, attention weights) identifying exactly which flags, ports, or temporal patterns are driving the prediction.
+```bash
+python tools/generate_synthetic_data.py --n-flows 120000
+```
 
----
+### 3. Train the Model
 
-## 4. Expected Prototype Components
+```bash
+python train.py --data data/raw/cic-ids-2018-synthetic.csv --config configs/default.yaml
+```
 
-A software-based, fully open-source, and offline solution is required. 
+### 4. Run Predictions
 
-* **Feature Extraction Pipeline:** Parses CSV flow records or raw PCAP files (via Scapy or PyShark) into a timestamped, normalized feature matrix.
-* **Trained World Model:** Includes training scripts, model weights, and reproducible training configurations.
-* **Prediction Engine:** Performs the $K$-step forward simulation from the traffic snapshot.
-* **Explainability Engine:** Translates model reasoning into human-readable driving features. Black-box models are unacceptable.
-* **Demonstration Interface:** An offline Streamlit, Flask, or CLI application that accepts a PCAP/CSV file, runs inference, and displays the timeline, flagged flows, and stage annotations.
-* **Benchmark Results:** Proven measurable improvement (F1 score, precision, recall, false positive rate) against a baseline logistic regression model trained on identical features.
+```bash
+python predict.py --data data/raw/test.csv --k-steps 5
+```
 
----
+### 5. Launch Demo
 
-## 5. Deliverables for Evaluation
+```bash
+streamlit run src/demo/app.py
+```
 
-* **Source Code:** GitHub or Drive link.
-* **Readme:** Complete local setup instructions.
-* **Architecture Document:** Maximum 2 pages detailing the data flow and model structure.
-* **Demo Video:** Maximum 2 minutes showing the interface in action.
-* **Technical Presentation:** Maximum 5 slides summarizing the approach and benchmark results.
+## Architecture
+
+```
+PCAP/CSV Input
+      │
+      ▼
+┌──────────────────┐
+│ Feature Extraction│  ← Flow-level (NetFlow) + Packet-level features
+│    Pipeline       │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Window Builder   │  ← 60s time windows with 30s slide
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  World Model     │  ← LSTM / Transformer / GRU
+│ P(S_{t+1} | S_t)│
+└────────┬─────────┘
+         │
+    ┌────┼────┐
+    │    │    │
+    ▼    ▼    ▼
+ Stage  K-Step  SHAP
+ Pred.  Forecast Explain
+```
+
+## Project Structure
+
+```
+SIH-26153/
+├── configs/
+│   └── default.yaml          # Configuration
+├── src/
+│   ├── data/
+│   │   ├── feature_extraction.py  # CSV/PCAP parsing
+│   │   ├── windowing.py          # Time window builder
+│   │   └── dataset.py            # PyTorch datasets
+│   ├── models/
+│   │   ├── world_model.py        # LSTM/Transformer/GRU
+│   │   └── baseline.py           # Logistic Regression baseline
+│   ├── prediction/
+│   │   └── engine.py             # K-step prediction engine
+│   ├── explainability/
+│   │   └── shap_explainer.py     # SHAP feature attribution
+│   ├── evaluation/
+│   │   └── metrics.py            # F1, precision, recall
+│   └── demo/
+│       └── app.py                # Streamlit dashboard
+├── presentation/
+│   ├── slides.md                 # 5-slide presentation content
+│   ├── slides.html               # Ready-to-present slide deck
+│   ├── architecture.md           # Architecture document
+│   └── qa_prep.md               # Q&A preparation for judges
+├── tools/
+│   └── generate_synthetic_data.py  # Synthetic dataset generator
+├── notes.tex / notes.pdf         # Tutorial
+├── DOCUMENTATION.md              # Complete project documentation
+├── train.py                      # Training script
+├── predict.py                    # Inference script
+├── demo.py                       # Demo data generator
+└── requirements.txt
+```
+
+## Deliverables Checklist
+
+- [x] **Source Code** — Complete Python implementation
+- [x] **README** — Setup instructions (this file)
+- [x] **Architecture Document** — `presentation/architecture.md`
+- [x] **Complete Documentation** — `DOCUMENTATION.md`
+- [ ] **Demo Video** — Recording needed (2 min max)
+- [x] **Technical Presentation** — `presentation/slides.md` + `slides.html`
+
+## Technical Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Deep Learning | PyTorch (LSTM, Transformer, GRU) |
+| Feature Extraction | pandas, scikit-learn |
+| Explainability | SHAP |
+| Demo Interface | Streamlit + Plotly |
+| Packet Parsing | Scapy |
+| Baseline | Logistic Regression (scikit-learn) |
+
+## Configuration
+
+Edit `configs/default.yaml` to adjust:
+- Window size and slide (default: 60s/30s)
+- Model type (lstm/transformer/gru)
+- Hyperparameters (hidden size, layers, dropout)
+- Training parameters (batch size, learning rate, epochs)
+- Forecast horizon (K steps)
+
+## License
+
+MIT License

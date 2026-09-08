@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Data
+data/raw/
+data/processed/
+*.pcap
+*.pcapng
+
+# Models & Checkpoints
+checkpoints/
+*.pt
+*.pth
+*.pkl
+*.h5
+*.onnx
+
+# Predictions
+predictions/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
+
+# Logs
+*.log
