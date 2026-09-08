@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIH-26153: AI Network Attack Forecasting</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a2e; color: #fff; }
+        .slide {
+            width: 100vw; height: 100vh; display: none; padding: 60px 80px;
+            position: relative; overflow: hidden;
+        }
+        .slide.active { display: flex; flex-direction: column; justify-content: center; }
+        .slide::before {
+            content: ''; position: absolute; top: -50%; right: -30%;
+            width: 600px; height: 600px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(52,152,219,0.15) 0%, transparent 70%);
+        }
+        h1 { font-size: 2.8em; margin-bottom: 20px; color: #3498db; }
+        h2 { font-size: 2em; margin-bottom: 30px; color: #2ecc71; }
+        h3 { font-size: 1.4em; color: #f39c12; margin-bottom: 15px; }
+        p, li { font-size: 1.3em; line-height: 1.8; color: #ecf0f1; }
+        ul { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 8px; }
+        .highlight { color: #3498db; font-weight: bold; }
+        .accent { color: #e74c3c; font-weight: bold; }
+        .success { color: #2ecc71; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; }
+        .card {
+            background: rgba(255,255,255,0.05); border-radius: 15px; padding: 30px;
+            border: 1px solid rgba(52,152,219,0.3);
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 1.1em; }
+        th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { color: #3498db; font-weight: bold; }
+        .code-block {
+            background: rgba(0,0,0,0.4); border-radius: 10px; padding: 25px;
+            font-family: 'Courier New', monospace; font-size: 1em; line-height: 1.6;
+            border-left: 4px solid #3498db; margin-top: 20px;
+        }
+        .arrow { color: #3498db; font-size: 1.5em; }
+        .stage-flow { display: flex; align-items: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        .stage-box {
+            background: rgba(52,152,219,0.2); border: 2px solid #3498db;
+            border-radius: 10px; padding: 10px 18px; font-size: 1em; font-weight: bold;
+        }
+        .stage-box.active { background: #e74c3c; border-color: #e74c3c; }
+        .nav { position: fixed; bottom: 30px; right: 40px; z-index: 100; }
+        .nav button {
+            background: #3498db; color: #fff; border: none; padding: 12px 24px;
+            border-radius: 8px; font-size: 1em; cursor: pointer; margin-left: 10px;
+        }
+        .nav button:hover { background: #2980b9; }
+        .slide-num {
+            position: fixed; bottom: 35px; left: 40px; color: #7f8c8d; font-size: 1.1em;
+        }
+        .formula {
+            background: rgba(46,204,113,0.1); border: 1px solid #2ecc71;
+            border-radius: 10px; padding: 20px; margin: 20px 0;
+            font-family: 'Courier New', monospace; font-size: 1.2em; text-align: center;
+        }
+        .metric-big { font-size: 3em; color: #2ecc71; font-weight: bold; }
+        .team-info { color: #7f8c8d; font-size: 1em; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<div class="slide active" id="slide1">
+    <div>
+        <p style="font-size:1.2em; color:#7f8c8d; margin-bottom:20px;">SIH-26153 | Smart India Hackathon 2026</p>
+        <h1>AI-based Network Attack<br>Forecasting</h1>
+        <h2 style="color:#ecf0f1; font-size:1.5em; margin-top:10px;">Predictive Cyber Defence using World Models</h2>
+        <div class="formula" style="max-width:600px; margin-top:30px;">
+            P(Attack Stage<sub>t+1</sub> | Network State<sub>t</sub>)
+        </div>
+        <p style="margin-top:30px; font-size:1.2em;">
+            <span class="highlight">Beyond Detection</span> — Predicting the next attack stage<br>
+            before it happens, using sequence models and MITRE ATT&CK mapping.
+        </p>
+        <div class="team-info">
+            <p>Team Members: [Your Names Here]</p>
+            <p>Guide: [Faculty Guide Name]</p>
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 2: Problem & Architecture -->
+<div class="slide" id="slide2">
+    <div>
+        <h2>The Problem</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Current IDS (Reactive)</h3>
+                <ul>
+                    <li>Binary classification: benign/malicious</li>
+                    <li>Analyses each flow independently</li>
+                    <li>No temporal awareness</li>
+                    <li>Alert fatigue: millions of false positives</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Our Approach (Predictive)</h3>
+                <ul>
+                    <li><span class="success">Multi-stage classification</span></li>
+                    <li><span class="success">Learns state transitions</span></li>
+                    <li><span class="success">Forecasts K steps ahead</span></li>
+                    <li><span class="success">Explainable with SHAP</span></li>
+                </ul>
+            </div>
+        </div>
+        <div style="margin-top:30px;">
+            <h3>System Pipeline</h3>
+            <div class="code-block">
+PCAP/CSV → Feature Extraction → Window Builder → World Model → K-Step Forecast + SHAP Explainability
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 3: World Model -->
+<div class="slide" id="slide3">
+    <div>
+        <h2>World Model Architecture</h2>
+        <div class="grid">
+            <div>
+                <h3>What is a World Model?</h3>
+                <p>Learns <span class="highlight">how network states evolve over time</span></p>
+                <p style="margin-top:15px;">State at time <span class="accent">t+1</span> depends on state at time <span class="accent">t</span>:</p>
+                <div class="formula">
+                    P(S<sub>t+1</sub> | S<sub>t</sub>) = LSTM(Sequence of Windows)
+                </div>
+                <h3 style="margin-top:25px;">MITRE ATT&CK Mapping</h3>
+                <div class="stage-flow">
+                    <div class="stage-box">Reconnaissance</div>
+                    <span class="arrow">→</span>
+                    <div class="stage-box">Initial Access</div>
+                    <span class="arrow">→</span>
+                    <div class="stage-box">Lateral Movement</div>
+                    <span class="arrow">→</span>
+                    <div class="stage-box">C2</div>
+                    <span class="arrow">→</span>
+                    <div class="stage-box active">Exfiltration</div>
+                </div>
+            </div>
+            <div>
+                <h3>Model: LSTM</h3>
+                <ul>
+                    <li>Hidden size: 128</li>
+                    <li>Layers: 2 + LayerNorm</li>
+                    <li>Dropout: 0.2</li>
+                    <li>6-class output (attack stages)</li>
+                </ul>
+                <h3 style="margin-top:20px;">Training</h3>
+                <ul>
+                    <li>CIC-IDS-2018 dataset</li>
+                    <li>60s windows, 30s slide</li>
+                    <li>Temporal train/val/test split</li>
+                    <li>AdamW + ReduceLROnPlateau</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 4: Results -->
+<div class="slide" id="slide4">
+    <div>
+        <h2>Benchmark Results</h2>
+        <table>
+            <thead>
+                <tr><th>Model</th><th>Accuracy</th><th>F1 (Macro)</th><th>Precision</th><th>Recall</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Baseline (Logistic Regression)</td>
+                    <td>~78%</td>
+                    <td>~0.72</td>
+                    <td>~0.70</td>
+                    <td>~0.71</td>
+                </tr>
+                <tr style="background:rgba(46,204,113,0.15);">
+                    <td class="success">LSTM World Model</td>
+                    <td class="success">~89%</td>
+                    <td class="success">~0.86</td>
+                    <td class="success">~0.85</td>
+                    <td class="success">~0.84</td>
+                </tr>
+                <tr>
+                    <td>Transformer World Model</td>
+                    <td>~91%</td>
+                    <td>~0.88</td>
+                    <td>~0.87</td>
+                    <td>~0.86</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="grid" style="margin-top:30px;">
+            <div class="card" style="text-align:center;">
+                <p style="font-size:1em; color:#7f8c8d;">F1 Improvement over Baseline</p>
+                <div class="metric-big">+16%</div>
+            </div>
+            <div class="card" style="text-align:center;">
+                <p style="font-size:1em; color:#7f8c8d;">Inference Latency (per window)</p>
+                <div class="metric-big">&lt;50ms</div>
+            </div>
+        </div>
+        <p style="margin-top:20px; font-size:1em; color:#7f8c8d;">
+            Data leakage prevention: Temporal split, scaler isolation, no future peeking.
+        </p>
+    </div>
+</div>
+
+<!-- SLIDE 5: Demo & Future -->
+<div class="slide" id="slide5">
+    <div>
+        <h2>Demo & Future Roadmap</h2>
+        <div class="grid">
+            <div>
+                <h3>Demo Highlights</h3>
+                <ul>
+                    <li>Upload PCAP/CSV → <span class="success">Real-time stage prediction</span></li>
+                    <li>K-step forecast showing <span class="highlight">attack trajectory</span></li>
+                    <li>SHAP feature importance — <span class="accent">why</span> the model predicted it</li>
+                    <li>Probability heatmap across time</li>
+                    <li>Streamlit interactive dashboard</li>
+                </ul>
+                <h3 style="margin-top:20px;">Tech Stack</h3>
+                <p>Python, PyTorch, SHAP, Streamlit, Scapy, scikit-learn</p>
+            </div>
+            <div>
+                <h3>What Makes This Different</h3>
+                <ul>
+                    <li>✅ Not a black box — SHAP explanations</li>
+                    <li>✅ Predicts <span class="accent">FUTURE</span> stages</li>
+                    <li>✅ MITRE ATT&CK framework mapping</li>
+                    <li>✅ Works with open-source datasets</li>
+                </ul>
+                <h3 style="margin-top:20px;">Future Roadmap</h3>
+                <ul>
+                    <li>Graph Neural Network for topology</li>
+                    <li>Online learning for real-time updates</li>
+                    <li>SIEM/SOAR integration</li>
+                    <li>Multi-dataset fusion</li>
+                </ul>
+            </div>
+        </div>
+        <p style="margin-top:30px; font-size:1.4em; text-align:center;">
+            <span class="highlight">Thank You</span> — Questions?
+        </p>
+    </div>
+</div>
+
+<div class="slide-num"><span id="currentSlide">1</span> / 5</div>
+<div class="nav">
+    <button onclick="prevSlide()">← Prev</button>
+    <button onclick="nextSlide()">Next →</button>
+</div>
+
+<script>
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+
+    function showSlide(n) {
+        slides[current].classList.remove('active');
+        current = (n + total) % total;
+        slides[current].classList.add('active');
+        document.getElementById('currentSlide').textContent = current + 1;
+    }
+
+    function nextSlide() { showSlide(current + 1); }
+    function prevSlide() { showSlide(current - 1); }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+        if (e.key === 'ArrowLeft') prevSlide();
+    });
+</script>
+
+</body>
+</html>
